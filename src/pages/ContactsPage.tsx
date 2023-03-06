@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "./ContactsPage.css";
 import axios, { AxiosResponse } from 'axios';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material";
+import { ArrowDropUp, ArrowDropDown } from '@mui/icons-material';
 
 type Contact = {
     jmeno: string;
@@ -19,13 +21,17 @@ type Contact = {
   ];
 
   const getContacts: any = () => {
-    const URL = "http://localhost:3000/getphonebook"
+    const URL = "http://localhost:3000/app1/getphonebook"
     return axios.get(URL);
   }
 
 const ContactsPage: React.FC = () => {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [searchText, setSearchText] = useState("");
+    const [filteredContacts2, setFilteredContacts2] = useState<Contact[]>([]);
+    const [sortBy, setSortBy] = useState('jmeno');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
 
     useEffect(() => {
       const fetchData = async () => {
@@ -51,35 +57,60 @@ const ContactsPage: React.FC = () => {
         contact.jmeno.toLowerCase().includes(searchText.toLowerCase()) ||
         contact.telefon.includes(searchText)
     );
+
+    const handleSortClick = (field: keyof Contact) => {
+      if (field === sortBy) {
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      } else {
+        setSortBy(field);
+        setSortOrder('asc');
+      }
+    };
+  
+    const sortedContacts = filteredContacts2.sort((a, b) => {
+      const aVal = a[sortBy as keyof Contact];
+      const bVal = b[sortBy as keyof Contact];
+      if (aVal < bVal) {
+        return sortOrder === 'asc' ? -1 : 1;
+      }
+      if (aVal > bVal) {
+        return sortOrder === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
   
     return (
-      <div>
-        <input
-          type="text"
-          placeholder="Search by Name or Phone Number"
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'left', marginLeft: "10px" }}>
+        <TextField
+          label="Hledat"
+          variant="outlined"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: '50%', marginBottom: 20, marginTop: 15}}
         />
-        <table>
-          <thead>
-            <tr>
-              <th onClick={() => handleSort("jmeno")}>Name</th>
-              <th onClick={() => handleSort("telefon")}>Phone</th>
-              <th onClick={() => handleSort("typ_zarizeni")}>Device Type</th>
-              <th onClick={() => handleSort("ip_zarizeni")}>IP Device</th>
-            </tr>
-          </thead>
-          <tbody>
+        <TableContainer component={Paper} style={{ width: '50%' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell onClick={() => handleSort("jmeno")}>Name</TableCell>
+              <TableCell onClick={() => handleSort("telefon")}>Phone</TableCell>
+              <TableCell onClick={() => handleSort("typ_zarizeni")}>Device Type</TableCell>
+              <TableCell onClick={() => handleSort("ip_zarizeni")}>IP Device</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {filteredContacts.map((contact) => (
-              <tr key={contact.telefon}>
-                <td>{contact.jmeno}</td>
-                <td>{contact.telefon}</td>
-                <td>{contact.typ_zarizeni}</td>
-                <td>{contact.ip_zarizeni}</td>
-              </tr>
+              <TableRow key={contact.telefon}>
+                <TableCell>{contact.jmeno}</TableCell>
+                <TableCell>{contact.telefon}</TableCell>
+                <TableCell>{contact.typ_zarizeni}</TableCell>
+                <TableCell>{contact.ip_zarizeni}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
+        </TableContainer>
       </div>
     );
   };
