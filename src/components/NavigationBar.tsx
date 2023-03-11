@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, makeStyles, Button } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  IconButton,
+} from "@mui/material";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
 import { Link } from "react-router-dom";
 import LoginPopup from "./LoginPopup";
 
@@ -9,7 +16,11 @@ const linkStyle = {
   marginRight: 20,
 };
 
-const NavigationBar: React.FC = () => {
+type Props = {
+  toggleTheme: () => void;
+};
+
+const NavigationBar: React.FC<Props> = ({ toggleTheme }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -21,10 +32,10 @@ const NavigationBar: React.FC = () => {
     setIsDialogOpen(false);
   };
 
-const handleLogin = (logged: boolean) => {
-        setIsLoggedIn(logged);
-        handleCloseDialog();
-    };
+  const handleLogin = (logged: boolean) => {
+    setIsLoggedIn(logged);
+    handleCloseDialog();
+  };
 
   return (
     <AppBar position="static">
@@ -38,7 +49,7 @@ const handleLogin = (logged: boolean) => {
             Zkrácenky
           </Link>
           {isLoggedIn ? (
-            <Link to="volnelinky" style={linkStyle}>
+            <Link to="/volnelinky" style={linkStyle}>
               Volné linky
             </Link>
           ) : (
@@ -46,8 +57,15 @@ const handleLogin = (logged: boolean) => {
               Přihlásit
             </Button>
           )}
+          <IconButton onClick={toggleTheme}>
+            <Brightness4Icon />
+          </IconButton>
         </div>
-        <LoginPopup open={isDialogOpen} onClose={handleCloseDialog} onLogin={handleLogin} />
+        <LoginPopup
+          open={isDialogOpen}
+          onClose={handleCloseDialog}
+          onLogin={handleLogin}
+        />
       </Toolbar>
     </AppBar>
   );
